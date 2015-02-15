@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.checkmobi.sdk">
+
+    <application android:allowBackup="true">
+
+    </application>
+
+</manifest>
