@@ -48,6 +48,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private String callId;
     private String dialingNumber;
     private String validationKey;
+    private String countryCode;
     private boolean pinStep = false;
 
     //reverse cli validation
@@ -78,7 +79,23 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     if(number.startsWith("+"))
                         number = number.substring(1);
 
-                    if(number.startsWith(callerId))
+                    //on some devices the number is in local format for local number.
+
+                    boolean matching = false;
+
+                    if(!number.startsWith(countryCode))
+                    {
+                        //skip country code
+
+                        if(number.indexOf(callerId.substring(countryCode.length())) != -1)
+                            matching = true;
+                    }
+                    else
+                        matching = number.startsWith(callerId);
+
+                    System.out.println("Incoming call received: "+intent.getStringExtra("number")+" matching:"+matching);
+
+                    if(matching)
                     {
                         StopReverseCliTimer();
                         HangupCall();
@@ -193,7 +210,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }
         catch (Exception ex)
         {
-            System.out.println("Failed to hangup the call...");
+            System.out.println("Failed to hangup the call...:"+ex.getMessage());
         }
     }
 
@@ -275,6 +292,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         this.callerId = null;
         this.dialingNumber = null;
         this.validationKey = null;
+        this.countryCode = null;
         this.pinStep = false;
         this.pinEditText.setText("");
         this.phoneNumberEditText.setText("");
@@ -331,6 +349,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         Map<String, Object> validation_info = (Map<String, Object>) result.get("validation_info");
 
                         phoneNumberEditText.setText(String.valueOf(validation_info.get("formatting")));
+                        countryCode = String.valueOf(validation_info.get("country_code"));
 
                         if(type.equalsIgnoreCase(ValidationType.CLI.getValue()))
                             PerformCliValidation(key, String.valueOf(result.get("dialing_number")));
@@ -429,7 +448,12 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + destinationNr));
-        intent.setPackage("com.android.phone");
+
+        if(Utils.isCompatible(Utils.LOLLIPOP))
+            intent.setPackage("com.android.server.telecom");
+        else
+            intent.setPackage("com.android.phone");
+
         this.startActivity(intent);
 
         RefreshGUI();

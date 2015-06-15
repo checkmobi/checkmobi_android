@@ -18,6 +18,8 @@ import javax.net.ssl.X509TrustManager;
 
 public class Utils
 {
+    public static int LOLLIPOP = 21;
+
     public static void ShowPickerDialog(AlertDialog.Builder dialogBuilder, String title, String[] items, int selected, DialogInterface.OnClickListener listener)
     {
         dialogBuilder.setTitle(title);
@@ -43,7 +45,9 @@ public class Utils
         alertDialog.setTitle(title);
         alertDialog.setMessage(message);
         alertDialog.setButton(DialogInterface.BUTTON_NEUTRAL, "Close", listener);
-        alertDialog.show();
+
+        if(!alertDialog.isShowing())
+            alertDialog.show();
     }
 
     public static boolean IsNetworkConnected(Context ct)
@@ -80,6 +84,11 @@ public class Utils
         {
             e.printStackTrace();
         }
+    }
+
+    public static boolean isCompatible(int apiLevel)
+    {
+        return android.os.Build.VERSION.SDK_INT >= apiLevel;
     }
 
 }
