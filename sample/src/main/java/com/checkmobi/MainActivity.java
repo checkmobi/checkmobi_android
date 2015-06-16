@@ -25,8 +25,10 @@ import com.checkmobi.sdk.CheckMobiService;
 import com.checkmobi.sdk.ErrorCode;
 import com.checkmobi.sdk.ValidationType;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,12 +50,11 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private String callId;
     private String dialingNumber;
     private String validationKey;
-    private String countryCode;
     private boolean pinStep = false;
 
     //reverse cli validation
 
-    private String callerId;
+    private String callerid_hash;
     private Timer timer;
     private TimerTask timerTask;
     private final Handler handler = new Handler();
@@ -76,24 +77,23 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 {
                     String number =  intent.getStringExtra("number");
 
-                    if(number.startsWith("+"))
-                        number = number.substring(1);
-
                     //on some devices the number is in local format for local number.
 
                     boolean matching = false;
 
-                    if(!number.startsWith(countryCode))
+                    try
                     {
-                        //skip country code
+                        String hash = AeSimpleSHA1.SHA1(number.substring(number.length() - 3));
 
-                        if(number.indexOf(callerId.substring(countryCode.length())) != -1)
+                        if(hash.equals(callerid_hash))
                             matching = true;
                     }
-                    else
-                        matching = number.startsWith(callerId);
+                    catch (NoSuchAlgorithmException | UnsupportedEncodingException  e)
+                    {
+                        e.printStackTrace();
+                    }
 
-                    System.out.println("Incoming call received: "+intent.getStringExtra("number")+" matching:"+matching);
+                    System.out.println("Incoming call received: "+number+" hash: "+callerid_hash+" matching: "+matching);
 
                     if(matching)
                     {
@@ -289,10 +289,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private void OnClickReset()
     {
         this.callId = null;
-        this.callerId = null;
+        this.callerid_hash = null;
         this.dialingNumber = null;
         this.validationKey = null;
-        this.countryCode = null;
         this.pinStep = false;
         this.pinEditText.setText("");
         this.phoneNumberEditText.setText("");
@@ -349,12 +348,11 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         Map<String, Object> validation_info = (Map<String, Object>) result.get("validation_info");
 
                         phoneNumberEditText.setText(String.valueOf(validation_info.get("formatting")));
-                        countryCode = String.valueOf(validation_info.get("country_code"));
 
                         if(type.equalsIgnoreCase(ValidationType.CLI.getValue()))
                             PerformCliValidation(key, String.valueOf(result.get("dialing_number")));
                         else if(type.equalsIgnoreCase(ValidationType.REVERSE_CLI.getValue()))
-                            PerformReverseCliValidation(key, String.valueOf(result.get("cli_prefix")));
+                            PerformReverseCliValidation(key, String.valueOf(result.get("pin_hash")));
                         else
                             PerformPinValidation(key);
                     }
@@ -409,10 +407,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }
     }
 
-    private void PerformReverseCliValidation(String key, String lastDigits)
+    private void PerformReverseCliValidation(String key, String hash)
     {
         this.validationKey = key;
-        this.callerId = lastDigits;
+        this.callerid_hash = hash;
 
         RefreshGUI();
 
