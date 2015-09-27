@@ -35,6 +35,9 @@ import java.util.TimerTask;
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener
 {
+    private final static String ANDROID_NEW_PACKAGE_NAME = "com.android.server.telecom";
+    private final static String ANDROID_OLD_PACKAGE_NAME = "com.android.phone";
+
     private WeakReference<ProgressDialog> loadingDialog;
 
     private EditText phoneNumberEditText;
@@ -437,6 +440,14 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         timer.schedule(timerTask, 15000);
     }
 
+    private void StartActionCallIntent(String package_name, String number)
+    {
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        intent.setData(Uri.parse("tel:" + number));
+        intent.setPackage(package_name);
+        this.startActivity(intent);
+    }
+
     private void PerformCliValidation(String key, String destinationNr)
     {
         ShowLoadingMessage(false);
@@ -444,15 +455,28 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         this.validationKey = key;
         this.dialingNumber = destinationNr;
 
-        Intent intent = new Intent(Intent.ACTION_CALL);
-        intent.setData(Uri.parse("tel:" + destinationNr));
+        String package_name;
 
         if(Utils.isCompatible(Utils.LOLLIPOP))
-            intent.setPackage("com.android.server.telecom");
+            package_name = ANDROID_NEW_PACKAGE_NAME;
         else
-            intent.setPackage("com.android.phone");
+            package_name = ANDROID_OLD_PACKAGE_NAME;
 
-        this.startActivity(intent);
+        try
+        {
+            //some android 5 devices still use the package name from android 4.x or older
+            //in case we get exception we fallback on the old package name
+            StartActionCallIntent(package_name, destinationNr);
+        }
+        catch (Exception ex)
+        {
+            if(package_name.equalsIgnoreCase(ANDROID_NEW_PACKAGE_NAME))
+                package_name = ANDROID_OLD_PACKAGE_NAME;
+            else
+                package_name = ANDROID_NEW_PACKAGE_NAME;
+
+            StartActionCallIntent(package_name, destinationNr);
+        }
 
         RefreshGUI();
     }
