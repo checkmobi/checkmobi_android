@@ -24,7 +24,7 @@ public enum ValidationType
         return value;
     }
 
-    private ValidationType(String value)
+    ValidationType(String value)
     {
         this.value = value;
     }

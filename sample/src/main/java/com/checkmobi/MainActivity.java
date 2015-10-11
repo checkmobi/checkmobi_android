@@ -62,7 +62,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private TimerTask timerTask;
     private final Handler handler = new Handler();
 
-    final BroadcastReceiver receiver = new BroadcastReceiver()
+    private final BroadcastReceiver receiver = new BroadcastReceiver()
     {
         @Override
         public void onReceive(Context context, Intent intent)

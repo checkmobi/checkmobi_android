@@ -16,9 +16,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.X509TrustManager;
 
-public class Utils
+class Utils
 {
-    public static int LOLLIPOP = 21;
+    public static final int LOLLIPOP = 21;
 
     public static void ShowPickerDialog(AlertDialog.Builder dialogBuilder, String title, String[] items, int selected, DialogInterface.OnClickListener listener)
     {
@@ -39,7 +39,7 @@ public class Utils
         });
     }
 
-    public static void ShowMessageBox(AlertDialog.Builder dialogBuilder, String title, String message, DialogInterface.OnClickListener listener)
+    private static void ShowMessageBox(AlertDialog.Builder dialogBuilder, String title, String message, DialogInterface.OnClickListener listener)
     {
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.setTitle(title);

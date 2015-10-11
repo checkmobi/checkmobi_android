@@ -9,13 +9,13 @@ public class CallReceiver extends PhoneCallReceiver
     public static final String MSG_CALL_END = "CallReceiver.MSG_CALL_END";
 
     @Override
-    protected void OnCallStarted(Context ctx, String number, boolean incoming)
+    void OnCallStarted(Context ctx, String number, boolean incoming)
     {
         SendNotification(ctx, MSG_CALL_START, number, incoming);
     }
 
     @Override
-    protected void OnCallEnded(Context ctx, String number, boolean incoming)
+    void OnCallEnded(Context ctx, String number, boolean incoming)
     {
         SendNotification(ctx, MSG_CALL_END, number, incoming);
     }

@@ -36,7 +36,7 @@ public abstract class PhoneCallReceiver extends BroadcastReceiver
         }
     }
 
-    public void onCallStateChanged(Context context, int state, String number)
+    private void onCallStateChanged(Context context, int state, String number)
     {
         if(lastState == state)
             return;
@@ -67,6 +67,6 @@ public abstract class PhoneCallReceiver extends BroadcastReceiver
         lastState = state;
     }
 
-    protected void OnCallStarted(Context ctx, String number, boolean incoming){}
-    protected void OnCallEnded(Context ctx, String number, boolean incoming){}
+    void OnCallStarted(Context ctx, String number, boolean incoming){}
+    void OnCallEnded(Context ctx, String number, boolean incoming){}
 }

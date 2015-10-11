@@ -25,7 +25,7 @@ public class RestServiceBase
     protected enum Method {GET, POST }
 
 
-    public RestServiceBase(String baseUrl)
+    RestServiceBase(String baseUrl)
     {
         this.baseUrl = baseUrl;
     }
@@ -36,7 +36,7 @@ public class RestServiceBase
     }
     public void SetBaseUrl(String baseUrl) {this.baseUrl = baseUrl;}
 
-    protected void PerformRequest(String resource, Method method, Map<String, Object> params, final AsyncResponse response)
+    void PerformRequest(String resource, Method method, Map<String, Object> params, final AsyncResponse response)
     {
         AndroidHttpClient httpClient = new AndroidHttpClient(this.baseUrl);
         httpClient.addHeader(kAuthorizationHeader, this.secretKey);

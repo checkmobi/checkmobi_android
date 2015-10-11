@@ -31,7 +31,7 @@ public enum ErrorCode
         return value;
     }
 
-    private ErrorCode(int value)
+    ErrorCode(int value)
     {
         this.value = value;
     }
