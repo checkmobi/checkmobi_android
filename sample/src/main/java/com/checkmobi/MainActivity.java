@@ -47,7 +47,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private Button resetButton;
     private Button validateButton;
 
-    private final String[] validationTypes = new String[]{"CLI", "SMS", "IVR", "Reverse CLI"};
+    private final String[] validationTypes = new String[]{"CLI", "SMS", "IVR", "Reverse CLI (Missed call)"};
     private int currentTypeIndex = 0;
 
     private String callId;
@@ -520,6 +520,32 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             {
                 case ErrorCodeInvalidPhoneNumber:
                     error_message = "Invalid phone number. Please provide the number in E164 format.";
+                    break;
+
+                //@todo: REMOVE THIS IN PRODUCTION. End users shouldn't see this.
+
+                case ErrorCodeInvalidApiKey:
+                    error_message = "Invalid API secret key.";
+                    break;
+
+                case ErrorCodeInsufficientFounds:
+                    error_message = "Insufficient funds. Please recharge your account or subscribe for trial credit";
+                    break;
+
+                case ErrorCodeInsufficientCLIValidations:
+                    error_message = "No more caller id validations available. upgrade your account";
+                    break;
+
+                case ErrorCodeValidationMethodNotAvailableInRegion:
+                    error_message = "Validation type not available for this number";
+                    break;
+
+                case ErrorCodeInvalidNotificationUrl:
+                    error_message = "Invalid notification URL";
+                    break;
+
+                case ErrorCodeInvalidEventPayload:
+                    error_message = "Invalid event inside payload";
                     break;
 
                 default:
