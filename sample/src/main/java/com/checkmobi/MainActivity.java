@@ -35,7 +35,11 @@ import java.util.TimerTask;
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener
 {
-    private boolean use_client_hangup = true;
+    //api settings
+
+    final private boolean use_client_hangup = true;
+    final private boolean use_server_hangup = true;
+    final private String api_secret_key = "secret_key_here";
 
     private WeakReference<ProgressDialog> loadingDialog;
 
@@ -240,7 +244,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         registerReceiver(receiver, new IntentFilter(CallReceiver.MSG_CALL_END));
 
         Utils.TrustInvalidSslCertificates();
-        CheckMobiService.getInstance().SetSecretKey("secret_key_here");
+
+        CheckMobiService.getInstance().SetUseServerHangup(this.use_server_hangup);
+        CheckMobiService.getInstance().SetSecretKey(this.api_secret_key);
 
         RefreshGUI();
     }

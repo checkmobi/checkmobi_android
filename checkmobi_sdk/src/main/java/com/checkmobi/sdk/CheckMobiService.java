@@ -20,6 +20,7 @@ public class CheckMobiService extends RestServiceBase
     private String notificationUrl = null;
     private String ivrLanguage = null;
     private String smsLanguage = null;
+    private boolean useServerHangup = true;
 
     //URLs
 
@@ -65,6 +66,8 @@ public class CheckMobiService extends RestServiceBase
     	this.smsLanguage = value;
 	}
 
+    public void SetUseServerHangup(boolean value) { this.useServerHangup = value; }
+
     public void RequestValidation(ValidationType type, String e164_number, AsyncResponse response)
     {
         HashMap<String, Object> map = new HashMap<>();
@@ -79,6 +82,9 @@ public class CheckMobiService extends RestServiceBase
             map.put("language", this.ivrLanguage);
         else if(type == ValidationType.SMS && this.smsLanguage != null)
             map.put("language", this.smsLanguage);
+
+        if(type == ValidationType.REVERSE_CLI)
+            map.put("use_server_hangup", this.useServerHangup);
 
         PerformRequest(kRequestValidationResource, Method.POST, map, response);
     }
