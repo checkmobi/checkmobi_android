@@ -35,8 +35,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener
 {
-    private final static String ANDROID_NEW_PACKAGE_NAME = "com.android.server.telecom";
-    private final static String ANDROID_OLD_PACKAGE_NAME = "com.android.phone";
+    private boolean use_client_hangup = true;
 
     private WeakReference<ProgressDialog> loadingDialog;
 
@@ -199,6 +198,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private void HangupCall()
     {
+        if(this.use_client_hangup == false)
+            return;
+
         try
         {
             TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -450,6 +452,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private void PerformCliValidation(String key, String destinationNr)
     {
+        final String ANDROID_NEW_PACKAGE_NAME = "com.android.server.telecom";
+        final String ANDROID_OLD_PACKAGE_NAME = "com.android.phone";
+
         ShowLoadingMessage(false);
 
         this.validationKey = key;

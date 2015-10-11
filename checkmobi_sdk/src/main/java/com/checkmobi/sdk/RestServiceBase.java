@@ -22,7 +22,7 @@ public class RestServiceBase
 
     //http methods
 
-    protected enum Method {GET, POST }
+    protected enum Method {GET, POST, DELETE }
 
 
     RestServiceBase(String baseUrl)
@@ -61,8 +61,12 @@ public class RestServiceBase
 
         if(method == Method.POST)
             httpClient.post(resource, kContentType, MapToJsonStringBytes(params), callback);
-        else
+        else if(method == Method.GET)
             httpClient.get(resource, null, callback);
+        else if (method == Method.DELETE)
+            httpClient.delete(resource, null, callback);
+        else
+            response.OnRequestCompleted(0, null, "Unsupported HTTP method");
     }
 
     //private methods

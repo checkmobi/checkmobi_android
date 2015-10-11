@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 public class CheckMobiService extends RestServiceBase
 {
+    private static final String PLATFORM = "android";
+
     //HTTP status codes
 
     public static final int STATUS_SUCCESS = 200;
@@ -28,8 +30,7 @@ public class CheckMobiService extends RestServiceBase
     private static final String kValidationCheckNumberResource = "/v1/checknumber";
     private static final String kSendSmsResource = "/v1/sms/send";
     private static final String kGetSmsDetailsResource = "/v1/sms";
-    private static final String kPlaceCallResource = "/v1/call";
-    private static final String kGetCallDetailsResource = "/v1/call";
+    private static final String kCallResource = "/v1/call";
     private static final String kGetCountriesListResource = "v1/countries";
 
     private static class LazyHolder
@@ -69,6 +70,7 @@ public class CheckMobiService extends RestServiceBase
         HashMap<String, Object> map = new HashMap<>();
         map.put("type", type.getValue());
         map.put("number", e164_number);
+        map.put("platform", CheckMobiService.PLATFORM);
 
         if(this.notificationUrl != null)
             map.put("notification_callback", this.notificationUrl);
@@ -101,6 +103,7 @@ public class CheckMobiService extends RestServiceBase
         HashMap<String, Object> map = new HashMap<>();
         map.put("to", to);
         map.put("text", text);
+        map.put("platform", CheckMobiService.PLATFORM);
 
         if(callback != null)
             map.put("notification_callback", callback);
@@ -123,17 +126,24 @@ public class CheckMobiService extends RestServiceBase
 
         map.put("to", to);
         map.put("events", events);
+        map.put("platform", CheckMobiService.PLATFORM);
 
         if(callback != null)
             map.put("notification_callback", callback);
 
-        PerformRequest(kPlaceCallResource, Method.POST, map, response);
+        PerformRequest(kCallResource, Method.POST, map, response);
     }
 
     public void GetCallDetails(String id, AsyncResponse response)
     {
-        String resource = kGetCallDetailsResource +"/"+id;
+        String resource = kCallResource +"/"+id;
         PerformRequest(resource, Method.GET, null, response);
+    }
+
+    public void HangupCall(String id, AsyncResponse response)
+    {
+        String resource = kCallResource +"/"+id;
+        PerformRequest(resource, Method.DELETE, null, response);
     }
 
     public void CheckNumber(String e164_number, AsyncResponse response)
