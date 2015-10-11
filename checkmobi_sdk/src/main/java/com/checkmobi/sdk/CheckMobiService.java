@@ -26,6 +26,11 @@ public class CheckMobiService extends RestServiceBase
     private static final String kValidationStatusResource = "/v1/validation/status";
     private static final String kValidationPinVerifyResource = "/v1/validation/verify";
     private static final String kValidationCheckNumberResource = "/v1/checknumber";
+    private static final String kSendSmsResource = "/v1/sms/send";
+    private static final String kGetSmsDetailsResource = "/v1/sms";
+    private static final String kPlaceCallResource = "/v1/call";
+    private static final String kGetCallDetailsResource = "/v1/call";
+    private static final String kGetCountriesListResource = "v1/countries";
 
     private static class LazyHolder
     {
@@ -91,6 +96,46 @@ public class CheckMobiService extends RestServiceBase
         PerformRequest(kValidationPinVerifyResource, Method.POST, map, response);
     }
 
+    public void SendSms(String to, String text, String callback, AsyncResponse response)
+    {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("to", to);
+        map.put("text", text);
+
+        if(callback != null)
+            map.put("notification_callback", callback);
+
+        PerformRequest(kSendSmsResource, Method.POST, map, response);
+    }
+
+    public void GetSmsDetails(String id, AsyncResponse response)
+    {
+        String resource = kGetSmsDetailsResource +"/"+id;
+        PerformRequest(resource, Method.GET, null, response);
+    }
+
+    public void PlaceCall(String from, String to, String events, String callback, AsyncResponse response)
+    {
+        HashMap<String, Object> map = new HashMap<>();
+
+        if(from != null)
+            map.put("from", from);
+
+        map.put("to", to);
+        map.put("events", events);
+
+        if(callback != null)
+            map.put("notification_callback", callback);
+
+        PerformRequest(kPlaceCallResource, Method.POST, map, response);
+    }
+
+    public void GetCallDetails(String id, AsyncResponse response)
+    {
+        String resource = kGetCallDetailsResource +"/"+id;
+        PerformRequest(resource, Method.GET, null, response);
+    }
+
     public void CheckNumber(String e164_number, AsyncResponse response)
     {
         HashMap<String, Object> map = new HashMap<>();
@@ -99,4 +144,9 @@ public class CheckMobiService extends RestServiceBase
         PerformRequest(kValidationCheckNumberResource, Method.POST, map, response);
     }
 
+    public void GetCountriesList(AsyncResponse response)
+    {
+        PerformRequest(kGetCountriesListResource, Method.GET, null, response);
+    }
+    
 }

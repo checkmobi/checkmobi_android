@@ -14,7 +14,8 @@ public enum ErrorCode
     ErrorCodeInsufficientCLIValidations(6),
     ErrorCodeInvalidRequestPayload(7),
     ErrorCodeValidationMethodNotAvailableInRegion(8),
-    ErrorCodeInvalidNotificationUrl(9);
+    ErrorCodeInvalidNotificationUrl(9),
+    ErrorCodeInvalidEventPayload(10);
 
     private final int value;
     private static final Map<Integer, ErrorCode> lookup = new DefaultHashMap<>(ErrorCodeNone);
