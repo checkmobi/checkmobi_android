@@ -37,8 +37,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 {
     //api settings
 
-    final private boolean use_client_hangup = true;
-    final private boolean use_server_hangup = true;
+    final private boolean use_client_hangup = false;
+    final private boolean close_call_for_failed_cli = true;
     final private String api_secret_key = "secret_key_here";
 
     private WeakReference<ProgressDialog> loadingDialog;
@@ -139,6 +139,29 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                             }
                         });
 
+                    }
+                    else if(close_call_for_failed_cli)
+                    {
+                        StopReverseCliTimer();
+
+                        if(use_client_hangup)
+                        {
+                            HangupCall();
+                        }
+                        else
+                        {
+                            CheckMobiService.getInstance().HangupCall(MainActivity.this.validationKey, new AsyncResponse()
+                            {
+                                @Override
+                                public void OnRequestCompleted(int httpStatus, Map<String, Object> responseMap, String error) {
+                                    if (httpStatus != CheckMobiService.STATUS_SUCCESS_NO_CONTENT)
+                                        System.out.println("Failed to close call on the server side. body= " + error + " error= " + error);
+                                }
+                            });
+                        }
+
+                        ShowLoadingMessage(false);
+                        Utils.ShowMessageBox(new AlertDialog.Builder(MainActivity.this), "Error", "Validation failed!");
                     }
 
                 }
@@ -246,7 +269,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
         Utils.TrustInvalidSslCertificates();
 
-        CheckMobiService.getInstance().SetUseServerHangup(this.use_server_hangup);
+        CheckMobiService.getInstance().SetUseServerHangup(!this.use_client_hangup);
         CheckMobiService.getInstance().SetSecretKey(this.api_secret_key);
 
         RefreshGUI();
