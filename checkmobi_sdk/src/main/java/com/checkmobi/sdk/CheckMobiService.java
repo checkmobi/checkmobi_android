@@ -83,9 +83,6 @@ public class CheckMobiService extends RestServiceBase
         else if(type == ValidationType.SMS && this.smsLanguage != null)
             map.put("language", this.smsLanguage);
 
-        if(type == ValidationType.REVERSE_CLI)
-            map.put("use_server_hangup", this.useServerHangup);
-
         PerformRequest(kRequestValidationResource, Method.POST, map, response);
     }
 
@@ -95,11 +92,14 @@ public class CheckMobiService extends RestServiceBase
         PerformRequest(resource, Method.GET, null, response);
     }
 
-    public void VerifyPin(String request_id, String pin, AsyncResponse response)
+    public void VerifyPin(ValidationType type, String request_id, String pin, AsyncResponse response)
     {
         HashMap<String, Object> map = new HashMap<>();
         map.put("id", request_id);
         map.put("pin", pin);
+
+        if(type == ValidationType.REVERSE_CLI)
+            map.put("use_server_hangup", Boolean.valueOf(this.useServerHangup));
 
         PerformRequest(kValidationPinVerifyResource, Method.POST, map, response);
     }

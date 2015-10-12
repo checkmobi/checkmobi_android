@@ -57,6 +57,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private String dialingNumber;
     private String validationKey;
     private boolean pinStep = false;
+    private ValidationType validation_type;
 
     //reverse cli validation
 
@@ -110,7 +111,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
                         String pinNumber = number.substring(number.length() - 4);
 
-                        CheckMobiService.getInstance().VerifyPin(MainActivity.this.validationKey, pinNumber, new AsyncResponse()
+                        CheckMobiService.getInstance().VerifyPin(MainActivity.this.validation_type, MainActivity.this.validationKey, pinNumber, new AsyncResponse()
                         {
                             @Override
                             public void OnRequestCompleted(int httpStatus, Map<String, Object> result, String error)
@@ -312,8 +313,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private ValidationType GetCurrentValidationType()
     {
-        //return ValidationType.get(validationTypes[currentTypeIndex].toLowerCase())
-
         if(currentTypeIndex == 0)
             return ValidationType.CLI;
         else if(currentTypeIndex == 1)
@@ -342,8 +341,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
             DismissKeyboard();
             ShowLoadingMessage(true);
+            this.validation_type = GetCurrentValidationType();
 
-            CheckMobiService.getInstance().RequestValidation(GetCurrentValidationType(), this.phoneNumberEditText.getText().toString(), new AsyncResponse()
+            CheckMobiService.getInstance().RequestValidation(this.validation_type, this.phoneNumberEditText.getText().toString(), new AsyncResponse()
             {
                 @Override
                 public void OnRequestCompleted(int httpStatus, Map<String, Object> result, String error)
@@ -387,7 +387,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             DismissKeyboard();
             ShowLoadingMessage(true);
 
-            CheckMobiService.getInstance().VerifyPin(this.validationKey, this.pinEditText.getText().toString(), new AsyncResponse()
+            CheckMobiService.getInstance().VerifyPin(this.validation_type, this.validationKey, this.pinEditText.getText().toString(), new AsyncResponse()
             {
                 @Override
                 public void OnRequestCompleted(int httpStatus, Map<String, Object> result, String error)
