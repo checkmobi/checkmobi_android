@@ -10,7 +10,7 @@ public enum ErrorCode
     ErrorCodeInvalidPhoneNumber(2),
     ErrorCodeInvalidRequestId(3),
     ErrorCodeInvalidValidationType(4),
-    ErrorCodeInsufficientFounds(5),
+    ErrorCodeInsufficientFunds(5),
     ErrorCodeInsufficientCLIValidations(6),
     ErrorCodeInvalidRequestPayload(7),
     ErrorCodeValidationMethodNotAvailableInRegion(8),

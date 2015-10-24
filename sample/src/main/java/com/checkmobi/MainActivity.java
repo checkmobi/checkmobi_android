@@ -562,7 +562,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     error_message = "Invalid API secret key.";
                     break;
 
-                case ErrorCodeInsufficientFounds:
+                case ErrorCodeInsufficientFunds:
                     error_message = "Insufficient funds. Please recharge your account or subscribe for trial credit";
                     break;
 
