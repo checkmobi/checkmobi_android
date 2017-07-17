@@ -2,17 +2,17 @@ apply plugin: 'com.android.application'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:appcompat-v7:25.3.1'
     compile project(':checkmobi_sdk')
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion '23.0.1'
+    compileSdkVersion 26
+    buildToolsVersion '26.0.0'
     defaultConfig {
         applicationId "com.checkmobi"
         minSdkVersion 10
-        targetSdkVersion 21
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
     }
