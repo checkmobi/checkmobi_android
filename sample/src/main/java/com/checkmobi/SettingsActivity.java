@@ -12,8 +12,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 {
     private EditText baseUrlEditText;
     private EditText secretKeyEditText;
-    private Button cancelButton;
-    private Button saveButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -23,14 +21,14 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         this.baseUrlEditText = (EditText) findViewById(R.id.editBaseUrl);
         this.secretKeyEditText = (EditText) findViewById(R.id.editSecretKey);
-        this.cancelButton = (Button) findViewById(R.id.buttonCancel);
-        this.saveButton = (Button) findViewById(R.id.buttonSave);
+        Button cancelButton = (Button) findViewById(R.id.buttonCancel);
+        Button saveButton = (Button) findViewById(R.id.buttonSave);
 
         this.secretKeyEditText.setText(Settings.getInstance().getSecretKey());
         this.baseUrlEditText.setText(Settings.getInstance().getBaseUrl());
 
-        this.cancelButton.setOnClickListener(this);
-        this.saveButton.setOnClickListener(this);
+        cancelButton.setOnClickListener(this);
+        saveButton.setOnClickListener(this);
     }
 
     @Override

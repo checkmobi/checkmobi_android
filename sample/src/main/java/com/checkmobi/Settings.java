@@ -4,7 +4,7 @@ import android.content.SharedPreferences;
 
 public class Settings
 {
-    public static final String SETTINGS_PREF_NAME = "CheckmobiSettings";
+    private static final String SETTINGS_PREF_NAME = "CheckmobiSettings";
 
     private static final Settings ourInstance = new Settings();
     private boolean useClientHangup;

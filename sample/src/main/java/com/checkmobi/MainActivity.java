@@ -14,7 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends ActionBarActivity implements View.OnClickListener
+public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
     final private int REQUEST_CALLING_PERMISSIONS = 123;
 
@@ -275,9 +275,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             }
 
             ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.CALL_PHONE}, REQUEST_CALLING_PERMISSIONS);
-            return;
         }
-
     }
 
     @Override
