@@ -15,7 +15,10 @@ public enum ErrorCode
     ErrorCodeInvalidRequestPayload(7),
     ErrorCodeValidationMethodNotAvailableInRegion(8),
     ErrorCodeInvalidNotificationUrl(9),
-    ErrorCodeInvalidEventPayload(10);
+    ErrorCodeInvalidEventPayload(10),
+    ErrorCodeRestrictedAccount(11),
+    ErrorCodeAccountLimitReached(12),
+    ErrorCodeDestinationBlocked(13);
 
     private final int value;
     private static final Map<Integer, ErrorCode> lookup = new DefaultHashMap<>(ErrorCodeNone);

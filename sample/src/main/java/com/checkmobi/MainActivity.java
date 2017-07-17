@@ -1,5 +1,6 @@
 package com.checkmobi;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -7,9 +8,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
@@ -35,11 +39,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener
 {
-    //api settings
-
-    final private boolean use_client_hangup = false;
-    final private boolean close_call_for_failed_cli = true;
-    final private String api_secret_key = "secret_key_here";
+    final private int REQUEST_CALLING_PERMISSIONS = 123;
 
     private WeakReference<ProgressDialog> loadingDialog;
 
@@ -71,18 +71,18 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            if(intent.getAction().equals(CallReceiver.MSG_CALL_START))
+            if (intent.getAction().equals(CallReceiver.MSG_CALL_START))
             {
-                if(!intent.getBooleanExtra("incoming", false))
+                if (!intent.getBooleanExtra("incoming", false))
                 {
-                    if(MainActivity.this.dialingNumber == null || MainActivity.this.validationKey == null || MainActivity.this.callId != null)
+                    if (MainActivity.this.dialingNumber == null || MainActivity.this.validationKey == null || MainActivity.this.callId != null)
                         return;
 
                     MainActivity.this.callId = intent.getStringExtra("number");
                 }
                 else
                 {
-                    String number =  intent.getStringExtra("number");
+                    String number = intent.getStringExtra("number");
 
                     //on some devices the number is in local format for local number.
 
@@ -92,17 +92,17 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     {
                         String hash = AeSimpleSHA1.SHA1(number.substring(number.length() - 3));
 
-                        if(hash.equals(callerid_hash))
+                        if (hash.equals(callerid_hash))
                             matching = true;
                     }
-                    catch (NoSuchAlgorithmException | UnsupportedEncodingException  e)
+                    catch (NoSuchAlgorithmException | UnsupportedEncodingException e)
                     {
                         e.printStackTrace();
                     }
 
-                    System.out.println("Incoming call received: "+number+" hash: "+callerid_hash+" matching: "+matching);
+                    System.out.println("Incoming call received: " + number + " hash: " + callerid_hash + " matching: " + matching);
 
-                    if(matching)
+                    if (matching)
                     {
                         StopReverseCliTimer();
                         HangupCall();
@@ -118,17 +118,17 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                             {
                                 ShowLoadingMessage(false);
 
-                                if(httpStatus == CheckMobiService.STATUS_SUCCESS && result != null)
+                                if (httpStatus == CheckMobiService.STATUS_SUCCESS && result != null)
                                 {
                                     Boolean validated = (Boolean) result.get("validated");
 
-                                    if(!validated)
+                                    if (!validated)
                                     {
                                         Utils.ShowMessageBox(new AlertDialog.Builder(MainActivity.this), "Error", "Validation failed!");
                                         return;
                                     }
 
-                                    String message = "Validation completed for: "+ phoneNumberEditText.getText().toString();
+                                    String message = "Validation completed for: " + phoneNumberEditText.getText().toString();
                                     Utils.ShowMessageBox(new AlertDialog.Builder(MainActivity.this), "Validation completed", message);
                                     OnClickReset();
                                 }
@@ -140,11 +140,11 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         });
 
                     }
-                    else if(close_call_for_failed_cli)
+                    else if (Settings.getInstance().isCloseCallForFailedAni())
                     {
                         StopReverseCliTimer();
 
-                        if(use_client_hangup)
+                        if (Settings.getInstance().isUseClientHangup())
                         {
                             HangupCall();
                         }
@@ -153,7 +153,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                             CheckMobiService.getInstance().HangupCall(MainActivity.this.validationKey, new AsyncResponse()
                             {
                                 @Override
-                                public void OnRequestCompleted(int httpStatus, Map<String, Object> responseMap, String error) {
+                                public void OnRequestCompleted(int httpStatus, Map<String, Object> responseMap, String error)
+                                {
                                     if (httpStatus != CheckMobiService.STATUS_SUCCESS_NO_CONTENT)
                                         System.out.println("Failed to close call on the server side. body= " + error + " error= " + error);
                                 }
@@ -166,16 +167,16 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
                 }
             }
-            if(intent.getAction().equals(CallReceiver.MSG_CALL_END))
+            if (intent.getAction().equals(CallReceiver.MSG_CALL_END))
             {
-                if(!intent.getBooleanExtra("incoming", false))
+                if (!intent.getBooleanExtra("incoming", false))
                 {
                     MainActivity pThis = MainActivity.this;
 
-                    if(pThis.dialingNumber == null || pThis.validationKey == null || pThis.callId == null)
+                    if (pThis.dialingNumber == null || pThis.validationKey == null || pThis.callId == null)
                         return;
 
-                    if(pThis.callId.compareTo(intent.getStringExtra("number")) != 0)
+                    if (pThis.callId.compareTo(intent.getStringExtra("number")) != 0)
                         return;
 
                     DismissKeyboard();
@@ -216,7 +217,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private void StopReverseCliTimer()
     {
-        if(timer != null)
+        if (timer != null)
         {
             timer.cancel();
             timer = null;
@@ -226,7 +227,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private void HangupCall()
     {
-        if(!this.use_client_hangup)
+        if (!Settings.getInstance().isUseClientHangup())
             return;
 
         try
@@ -243,8 +244,40 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }
         catch (Exception ex)
         {
-            System.out.println("Failed to hangup the call...:"+ex.getMessage());
+            System.out.println("Failed to hangup the call...:" + ex.getMessage());
         }
+    }
+
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(MainActivity.this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
+    }
+
+    private void CheckPermissions()
+    {
+        int has_call_permission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE);
+        if (has_call_permission != PackageManager.PERMISSION_GRANTED)
+        {
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CALL_PHONE))
+            {
+                showMessageOKCancel("You need to allow access to calling permissions", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.CALL_PHONE},
+                                REQUEST_CALLING_PERMISSIONS);
+                    }
+                });
+                return;
+            }
+
+            ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.CALL_PHONE}, REQUEST_CALLING_PERMISSIONS);
+            return;
+        }
+
     }
 
     @Override
@@ -267,8 +300,11 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         registerReceiver(receiver, new IntentFilter(CallReceiver.MSG_CALL_START));
         registerReceiver(receiver, new IntentFilter(CallReceiver.MSG_CALL_END));
 
-        CheckMobiService.getInstance().SetUseServerHangup(!this.use_client_hangup);
-        CheckMobiService.getInstance().SetSecretKey(this.api_secret_key);
+        CheckMobiService.getInstance().SetBaseUrl(Settings.getInstance().getBaseUrl());
+        CheckMobiService.getInstance().SetSecretKey(Settings.getInstance().getSecretKey());
+        CheckMobiService.getInstance().SetUseServerHangup(!Settings.getInstance().isUseClientHangup());
+
+        CheckPermissions();
 
         RefreshGUI();
     }
@@ -289,14 +325,19 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        int id = item.getItemId();
-        return id == R.id.action_settings || super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.action_settings)
+        {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onClick(View view)
     {
-        if(view.getId() == R.id.validationTypeBtt)
+        if (view.getId() == R.id.validationTypeBtt)
             OnClickValidationType();
         else if (view.getId() == R.id.resetBtt)
             OnClickReset();
@@ -334,11 +375,11 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private ValidationType GetCurrentValidationType()
     {
-        if(currentTypeIndex == 0)
+        if (currentTypeIndex == 0)
             return ValidationType.CLI;
-        else if(currentTypeIndex == 1)
+        else if (currentTypeIndex == 1)
             return ValidationType.SMS;
-        else if(currentTypeIndex == 2)
+        else if (currentTypeIndex == 2)
             return ValidationType.IVR;
         else
             return ValidationType.REVERSE_CLI;
@@ -346,15 +387,15 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private void OnClickValidate()
     {
-        if(!Utils.IsNetworkConnected(this))
+        if (!Utils.IsNetworkConnected(this))
         {
             Utils.ShowMessageBox(new AlertDialog.Builder(this), "Error", "No internet connection available!");
             return;
         }
 
-        if(!this.pinStep)
+        if (!this.pinStep)
         {
-            if(this.phoneNumberEditText.getText().length() == 0)
+            if (this.phoneNumberEditText.getText().length() == 0)
             {
                 Utils.ShowMessageBox(new AlertDialog.Builder(this), "Invalid number", "Please provide a valid number");
                 return;
@@ -369,9 +410,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 @Override
                 public void OnRequestCompleted(int httpStatus, Map<String, Object> result, String error)
                 {
-                    System.out.println("Status= "+ httpStatus+" result= "+ (result!= null ? result.toString(): "null")+" error="+error);
+                    System.out.println("Status= " + httpStatus + " result= " + (result != null ? result.toString() : "null") + " error=" + error);
 
-                    if(httpStatus == CheckMobiService.STATUS_SUCCESS && result != null)
+                    if (httpStatus == CheckMobiService.STATUS_SUCCESS && result != null)
                     {
                         String key = String.valueOf(result.get("id"));
                         String type = String.valueOf(result.get("type"));
@@ -381,9 +422,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
                         phoneNumberEditText.setText(String.valueOf(validation_info.get("formatting")));
 
-                        if(type.equalsIgnoreCase(ValidationType.CLI.getValue()))
+                        if (type.equalsIgnoreCase(ValidationType.CLI.getValue()))
                             PerformCliValidation(key, String.valueOf(result.get("dialing_number")));
-                        else if(type.equalsIgnoreCase(ValidationType.REVERSE_CLI.getValue()))
+                        else if (type.equalsIgnoreCase(ValidationType.REVERSE_CLI.getValue()))
                             PerformReverseCliValidation(key, String.valueOf(result.get("pin_hash")));
                         else
                             PerformPinValidation(key);
@@ -399,7 +440,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }
         else
         {
-            if(this.pinEditText.getText().length() == 0)
+            if (this.pinEditText.getText().length() == 0)
             {
                 Utils.ShowMessageBox(new AlertDialog.Builder(this), "Invalid pin", "Please provide a valid pin number");
                 return;
@@ -415,17 +456,17 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 {
                     ShowLoadingMessage(false);
 
-                    if(httpStatus == CheckMobiService.STATUS_SUCCESS && result != null)
+                    if (httpStatus == CheckMobiService.STATUS_SUCCESS && result != null)
                     {
                         Boolean validated = (Boolean) result.get("validated");
 
-                        if(!validated)
+                        if (!validated)
                         {
                             Utils.ShowMessageBox(new AlertDialog.Builder(MainActivity.this), "Error", "Invalid PIN!");
                             return;
                         }
 
-                        String message = "Validation completed for: "+ phoneNumberEditText.getText().toString();
+                        String message = "Validation completed for: " + phoneNumberEditText.getText().toString();
                         Utils.ShowMessageBox(new AlertDialog.Builder(MainActivity.this), "Validation completed", message);
                         OnClickReset();
                     }
@@ -452,7 +493,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             @Override
             public void run()
             {
-                handler.post(new Runnable() {
+                handler.post(new Runnable()
+                {
 
                     @Override
                     public void run()
@@ -474,6 +516,12 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + number));
         intent.setPackage(package_name);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED)
+        {
+            Utils.ShowMessageBox(new AlertDialog.Builder(this), "Error", "You need to provide permissions to the app to place calls");
+            return;
+        }
+
         this.startActivity(intent);
     }
 
@@ -554,6 +602,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     error_message = "Invalid phone number. Please provide the number in E164 format.";
                     break;
 
+                case ErrorCodeDestinationBlocked:
+                    error_message = "Destination blocked.";
+                    break;
+
                 //@todo: REMOVE THIS IN PRODUCTION. End users shouldn't see this.
 
                 case ErrorCodeInvalidApiKey:
@@ -578,6 +630,14 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
                 case ErrorCodeInvalidEventPayload:
                     error_message = "Invalid event inside payload";
+                    break;
+
+                case ErrorCodeAccountLimitReached:
+                    error_message = "One or multiple account restrictions reached.";
+                    break;
+
+                case ErrorCodeRestrictedAccount:
+                    error_message = "Account suspended due to suspicious traffic";
                     break;
 
                 default:
