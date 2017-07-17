@@ -226,7 +226,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private void HangupCall()
     {
-        if(this.use_client_hangup == false)
+        if(!this.use_client_hangup)
             return;
 
         try

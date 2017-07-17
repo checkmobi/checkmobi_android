@@ -99,7 +99,7 @@ public class CheckMobiService extends RestServiceBase
         map.put("pin", pin);
 
         if(type == ValidationType.REVERSE_CLI)
-            map.put("use_server_hangup", Boolean.valueOf(this.useServerHangup));
+            map.put("use_server_hangup", this.useServerHangup);
 
         PerformRequest(kValidationPinVerifyResource, Method.POST, map, response);
     }
