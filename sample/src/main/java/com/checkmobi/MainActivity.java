@@ -267,8 +267,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         registerReceiver(receiver, new IntentFilter(CallReceiver.MSG_CALL_START));
         registerReceiver(receiver, new IntentFilter(CallReceiver.MSG_CALL_END));
 
-        Utils.TrustInvalidSslCertificates();
-
         CheckMobiService.getInstance().SetUseServerHangup(!this.use_client_hangup);
         CheckMobiService.getInstance().SetSecretKey(this.api_secret_key);
 
