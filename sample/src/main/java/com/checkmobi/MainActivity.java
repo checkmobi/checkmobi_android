@@ -259,22 +259,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void CheckPermissions()
     {
-        int has_call_permission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE);
-        if (has_call_permission != PackageManager.PERMISSION_GRANTED)
+        boolean has_call_phone_permission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED;
+        boolean has_call_log_permission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED;
+        boolean has_read_phone_permission = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED;
+        if (!has_call_phone_permission || !has_call_log_permission || !has_read_phone_permission)
         {
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CALL_PHONE))
+            boolean denied_call_phone_permission = !has_call_phone_permission && !ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CALL_PHONE);
+            boolean denied_call_log_permission = !has_call_log_permission && !ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_CALL_LOG);
+            boolean denied_read_phone_permission = !has_read_phone_permission && !ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_PHONE_STATE);
+            if (denied_call_phone_permission || denied_call_log_permission || denied_read_phone_permission)
             {
                 showMessageOKCancel("You need to allow access to calling permissions", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.CALL_PHONE},
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.CALL_PHONE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_PHONE_STATE},
                                 REQUEST_CALLING_PERMISSIONS);
                     }
                 });
                 return;
             }
 
-            ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.CALL_PHONE}, REQUEST_CALLING_PERMISSIONS);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.CALL_PHONE, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_PHONE_STATE}, REQUEST_CALLING_PERMISSIONS);
         }
     }
 
