@@ -1,6 +1,9 @@
 
 ### The CheckMobi SDK for Android
 
+#### This project is deprecated. You can use the new [Remote Config SDK][1] to integrate CheckMobi into any Android App.
+
+
 In order to test the sample you need to change the secret key into the Settings window and save it.
 
 All sample settings are in `Settings` class:
@@ -14,3 +17,4 @@ You can consult the documentation to see what are the advantages/disadvantages f
 
 Also in production you might want to change in the same `MainActivity.java` the `HandleValidationServiceError` implementation.
 
+[1]:https://github.com/checkmobi/remote-config-sdk-android
